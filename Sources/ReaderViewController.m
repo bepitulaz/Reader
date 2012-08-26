@@ -50,16 +50,17 @@
 #ifdef DEBUGX
 	NSLog(@"%s", __FUNCTION__);
 #endif
+    NSInteger count = [document.pageCount integerValue];
 
-	NSInteger count = [document.pageCount integerValue];
+    if (count > PAGING_VIEWS) count = PAGING_VIEWS; // Limit
 
-	if (count > PAGING_VIEWS) count = PAGING_VIEWS; // Limit
+    CGFloat contentHeight = theScrollView.bounds.size.height;
 
-	CGFloat contentHeight = theScrollView.bounds.size.height;
-
-	CGFloat contentWidth = (theScrollView.bounds.size.width * count);
-
-	theScrollView.contentSize = CGSizeMake(contentWidth, contentHeight);
+    CGFloat contentWidth;
+    
+    contentWidth = (theScrollView.bounds.size.width * count);
+    
+    theScrollView.contentSize = CGSizeMake(contentWidth, contentHeight);
 }
 
 - (void)updateScrollViewContentViews
@@ -78,28 +79,37 @@
 			ReaderContentView *contentView = object; [pageSet addIndex:contentView.tag];
 		}
 	];
+    
+    __block CGRect viewRect = CGRectZero;
+    
+    // additional code for scroll view layouting
+    // authored by: @bepitulaz
+    if(UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
+        viewRect.size = theScrollView.bounds.size;
+        [theScrollView setContentSize:CGSizeMake(viewRect.size.width * maxPDFPage, theScrollView.bounds.size.height)];
+    } else {
+        viewRect.size = CGSizeMake(theScrollView.bounds.size.width/2, theScrollView.bounds.size.height);
+        [theScrollView setContentSize:CGSizeMake(theScrollView.bounds.size.width * ceil(maxPDFPage/2), theScrollView.bounds.size.height)];
+    }
+    __block CGPoint contentOffset = CGPointZero; NSInteger page = [document.pageNumber integerValue];
 
-	__block CGRect viewRect = CGRectZero; viewRect.size = theScrollView.bounds.size;
+    [pageSet enumerateIndexesUsingBlock: // Enumerate page number set
+        ^(NSUInteger number, BOOL *stop)
+        {
+            NSNumber *key = [NSNumber numberWithInteger:number]; // # key
 
-	__block CGPoint contentOffset = CGPointZero; NSInteger page = [document.pageNumber integerValue];
+            ReaderContentView *contentView = [contentViews objectForKey:key];
 
-	[pageSet enumerateIndexesUsingBlock: // Enumerate page number set
-		^(NSUInteger number, BOOL *stop)
-		{
-			NSNumber *key = [NSNumber numberWithInteger:number]; // # key
+            contentView.frame = viewRect; if (page == number) contentOffset = viewRect.origin;
 
-			ReaderContentView *contentView = [contentViews objectForKey:key];
+            viewRect.origin.x += viewRect.size.width; // Next view frame position
+        }
+    ];
 
-			contentView.frame = viewRect; if (page == number) contentOffset = viewRect.origin;
-
-			viewRect.origin.x += viewRect.size.width; // Next view frame position
-		}
-	];
-
-	if (CGPointEqualToPoint(theScrollView.contentOffset, contentOffset) == false)
-	{
-		theScrollView.contentOffset = contentOffset; // Update content offset
-	}
+    if (CGPointEqualToPoint(theScrollView.contentOffset, contentOffset) == false)
+    {
+        theScrollView.contentOffset = contentOffset; // Update content offset
+    }
 }
 
 - (void)updateToolbarBookmarkIcon
@@ -120,38 +130,65 @@
 #ifdef DEBUGX
 	NSLog(@"%s", __FUNCTION__);
 #endif
-
+    //NSLog(@"page %d current page %d", page, currentPage);
 	if (page != currentPage) // Only if different
 	{
 		NSInteger minValue; NSInteger maxValue;
-		NSInteger maxPage = [document.pageCount integerValue];
+		maxPDFPage = [document.pageCount integerValue];
 		NSInteger minPage = 1;
 
-		if ((page < minPage) || (page > maxPage)) return;
+		if ((page < minPage) || (page > maxPDFPage)) return;
 
-		if (maxPage <= PAGING_VIEWS) // Few pages
+		if (maxPDFPage <= PAGING_VIEWS) // Few pages
 		{
 			minValue = minPage;
-			maxValue = maxPage;
+			maxValue = maxPDFPage;
 		}
 		else // Handle more pages
 		{
-			minValue = (page - 1);
-			maxValue = (page + 1);
-
-			if (minValue < minPage)
-				{minValue++; maxValue++;}
-			else
-				if (maxValue > maxPage)
-					{minValue--; maxValue--;}
+            if(UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
+                minValue = (page - 1);
+                maxValue = (page + 1);
+                
+                if (minValue < minPage)
+                    {minValue++; maxValue++;}
+                else
+                    if (maxValue > maxPDFPage)
+                        {minValue--; maxValue--;}
+            } else {
+                minValue = (page - 1);
+                maxValue = (page + 2);
+                
+                if (minValue < minPage)
+                {
+                    minValue = minValue + 1; 
+                    maxValue = maxValue + 2;
+                }
+                else
+                {
+                    if (maxValue > maxPDFPage)
+                    {
+                        minValue--;
+                        maxValue--;
+                    }
+                }
+            }
 		}
 
 		NSMutableIndexSet *newPageSet = [NSMutableIndexSet new];
 
 		NSMutableDictionary *unusedViews = [contentViews mutableCopy];
 
-		CGRect viewRect = CGRectZero; viewRect.size = theScrollView.bounds.size;
-
+		CGRect viewRect = CGRectZero; 
+        
+        // Additional code for scroll view layouting
+        // authored by @bepitulaz
+        if(UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
+            viewRect.size = theScrollView.bounds.size;
+        } else {
+            viewRect.size = CGSizeMake(theScrollView.bounds.size.width/2, theScrollView.bounds.size.height);
+        }
+        
 		for (NSInteger number = minValue; number <= maxValue; number++)
 		{
 			NSNumber *key = [NSNumber numberWithInteger:number]; // # key
@@ -196,9 +233,9 @@
 
 		CGPoint contentOffset = CGPointZero;
 
-		if (maxPage >= PAGING_VIEWS)
+		if (maxPDFPage >= PAGING_VIEWS)
 		{
-			if (page == maxPage)
+			if (page == maxPDFPage)
 				contentOffset.x = viewWidthX2;
 			else
 				if (page != minPage)

@@ -115,6 +115,7 @@ static inline CGFloat ZoomScaleThatFits(CGSize target, CGSize source)
 #endif // end of READER_SHOW_SHADOWS Option
 
 			self.contentSize = theContentView.bounds.size; // Content size same as view size
+            
 			self.contentOffset = CGPointMake((0.0f - CONTENT_INSET), (0.0f - CONTENT_INSET)); // Offset
 			self.contentInset = UIEdgeInsetsMake(CONTENT_INSET, CONTENT_INSET, CONTENT_INSET, CONTENT_INSET);
 
