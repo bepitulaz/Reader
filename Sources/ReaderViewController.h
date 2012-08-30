@@ -62,6 +62,8 @@
 	UIPrintInteractionController *printInteraction;
 
 	NSInteger currentPage;
+    
+    NSInteger maxPDFPage;
 
 	CGSize lastAppearSize;
 
