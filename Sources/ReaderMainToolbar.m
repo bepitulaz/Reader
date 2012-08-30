@@ -44,6 +44,7 @@
 #define EMAIL_BUTTON_WIDTH 40.0f
 #define MARK_BUTTON_WIDTH 40.0f
 
+#define TITLE_MINIMUM_WIDTH 128.0f
 #define TITLE_HEIGHT 28.0f
 
 #pragma mark Properties
@@ -88,7 +89,7 @@
 		UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
 
 		doneButton.frame = CGRectMake(leftButtonX, BUTTON_Y, DONE_BUTTON_WIDTH, BUTTON_HEIGHT);
-		[doneButton setTitle:NSLocalizedString(@"Done", @"button") forState:UIControlStateNormal];
+		[doneButton setTitle:NSLocalizedString(@"Library", @"button") forState:UIControlStateNormal];
 		[doneButton setTitleColor:[UIColor colorWithWhite:0.0f alpha:1.0f] forState:UIControlStateNormal];
 		[doneButton setTitleColor:[UIColor colorWithWhite:1.0f alpha:1.0f] forState:UIControlStateHighlighted];
 		[doneButton addTarget:self action:@selector(doneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -194,7 +195,7 @@
 
 #endif // end of READER_ENABLE_PRINT Option
 
-		if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad)
+		if (titleWidth >= TITLE_MINIMUM_WIDTH) // Title minimum width check
 		{
 			CGRect titleRect = CGRectMake(titleX, BUTTON_Y, titleWidth, TITLE_HEIGHT);
 
@@ -210,7 +211,7 @@
 			titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
 			titleLabel.adjustsFontSizeToFitWidth = YES;
 			titleLabel.minimumFontSize = 14.0f;
-			titleLabel.text = [object.fileName stringByDeletingPathExtension];
+			titleLabel.text = object.title;
 
 			[self addSubview:titleLabel]; [titleLabel release];
 		}
@@ -288,7 +289,7 @@
 
 	if (self.hidden == NO)
 	{
-		[UIView animateWithDuration:0.25 delay:0.0
+		[UIView animateWithDuration:0.5 delay:0.0
 			options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction
 			animations:^(void)
 			{
@@ -312,7 +313,7 @@
 	{
 		[self updateBookmarkImage]; // First
 
-		[UIView animateWithDuration:0.25 delay:0.0
+		[UIView animateWithDuration:0.5 delay:0.0
 			options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction
 			animations:^(void)
 			{
