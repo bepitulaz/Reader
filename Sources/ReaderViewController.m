@@ -130,13 +130,15 @@
 #ifdef DEBUGX
 	NSLog(@"%s", __FUNCTION__);
 #endif
-    //NSLog(@"page %d current page %d", page, currentPage);
+    
 	if (page != currentPage) // Only if different
 	{
 		NSInteger minValue; NSInteger maxValue;
-		maxPDFPage = [document.pageCount integerValue];
+        maxPDFPage = [document.pageCount integerValue];
 		NSInteger minPage = 1;
-
+        
+        NSLog(@"maxPDFPage %d currentPage %d page %d", maxPDFPage, currentPage, page);
+        
 		if ((page < minPage) || (page > maxPDFPage)) return;
 
 		if (maxPDFPage <= PAGING_VIEWS) // Few pages
@@ -156,7 +158,11 @@
                     if (maxValue > maxPDFPage)
                         {minValue--; maxValue--;}
             } else {
-                minValue = (page - 1);
+                if(page == 1) {
+                    NSLog(@"halaman cover");
+                }
+                
+                /*minValue = (page - 1);
                 maxValue = (page + 2);
                 
                 if (minValue < minPage)
@@ -171,7 +177,7 @@
                         minValue--;
                         maxValue--;
                     }
-                }
+                }*/
             }
 		}
 
