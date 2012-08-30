@@ -38,6 +38,7 @@
 #define DONE_BUTTON_WIDTH 56.0f
 #define SHOW_CONTROL_WIDTH 78.0f
 
+#define TITLE_MINIMUM_WIDTH 128.0f
 #define TITLE_HEIGHT 28.0f
 
 #pragma mark Properties
@@ -76,7 +77,7 @@
 		UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
 
 		doneButton.frame = CGRectMake(BUTTON_X, BUTTON_Y, DONE_BUTTON_WIDTH, BUTTON_HEIGHT);
-		[doneButton setTitle:NSLocalizedString(@"Done", @"button") forState:UIControlStateNormal];
+		[doneButton setTitle:NSLocalizedString(@"Back", @"button") forState:UIControlStateNormal];
 		[doneButton setTitleColor:[UIColor colorWithWhite:0.0f alpha:1.0f] forState:UIControlStateNormal];
 		[doneButton setTitleColor:[UIColor colorWithWhite:1.0f alpha:1.0f] forState:UIControlStateHighlighted];
 		[doneButton addTarget:self action:@selector(doneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -113,7 +114,7 @@
 
 #endif // end of READER_BOOKMARKS Option
 
-		if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad)
+		if (titleWidth >= TITLE_MINIMUM_WIDTH) // Title minimum width check
 		{
 			CGRect titleRect = CGRectMake(titleX, BUTTON_Y, titleWidth, TITLE_HEIGHT);
 
