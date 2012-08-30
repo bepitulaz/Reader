@@ -48,6 +48,8 @@
 	NSString *_password;
 
 	NSURL *_fileURL;
+
+    NSString *_title;
 }
 
 @property (nonatomic, retain, readonly) NSString *guid;
@@ -60,6 +62,7 @@
 @property (nonatomic, retain, readonly) NSString *fileName;
 @property (nonatomic, retain, readonly) NSString *password;
 @property (nonatomic, retain, readonly) NSURL *fileURL;
+@property (nonatomic, retain, readwrite) NSString *title;
 
 + (ReaderDocument *)withDocumentFilePath:(NSString *)filename password:(NSString *)phrase;
 

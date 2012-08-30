@@ -54,7 +54,7 @@
 		imageView.userInteractionEnabled = NO;
 		imageView.contentMode = UIViewContentModeScaleAspectFit;
 		imageView.autoresizingMask = UIViewAutoresizingNone;
-		//imageView.backgroundColor = [UIColor clearColor];
+		imageView.backgroundColor = [UIColor clearColor];
 
 		[self addSubview:imageView];
 	}

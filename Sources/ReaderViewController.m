@@ -35,7 +35,13 @@
 #define PAGING_VIEWS 3
 
 #define TOOLBAR_HEIGHT 44.0f
+
+#if (READER_SLIDER == TRUE)
+#define PAGEBAR_HEIGHT_PAD 128.0f
+#define PAGEBAR_HEIGHT_PHONE 53.0f
+#else
 #define PAGEBAR_HEIGHT 48.0f
+#endif
 
 #define TAP_AREA_SIZE 48.0f
 
@@ -358,6 +364,10 @@
 	NSLog(@"%s %@", __FUNCTION__, NSStringFromCGRect(self.view.bounds));
 #endif
 
+#if (READER_SLIDER == TRUE)
+    float PAGEBAR_HEIGHT = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) ? PAGEBAR_HEIGHT_PHONE : PAGEBAR_HEIGHT_PAD;
+#endif
+    
 	[super viewDidLoad];
 
 	NSAssert(!(document == nil), @"ReaderDocument == nil");
@@ -367,8 +377,13 @@
 	self.view.backgroundColor = [UIColor scrollViewTexturedBackgroundColor];
 
 	CGRect viewRect = self.view.bounds; // View controller's view bounds
-
-	theScrollView = [[UIScrollView alloc] initWithFrame:viewRect]; // All
+    
+    viewRect.size.height -= PAGEBAR_HEIGHT;
+    
+    CGRect notFullRect = self.view.bounds;
+    notFullRect.size.height -= PAGEBAR_HEIGHT + TOOLBAR_HEIGHT;
+    notFullRect.origin.y = TOOLBAR_HEIGHT;
+    theScrollView = [[UIScrollView alloc] initWithFrame:notFullRect]; // All
 
 	theScrollView.scrollsToTop = NO;
 	theScrollView.pagingEnabled = YES;
@@ -382,6 +397,8 @@
 	theScrollView.autoresizesSubviews = NO;
 	theScrollView.delegate = self;
 
+    theScrollView.autoresizesSubviews = YES;
+    
 	[self.view addSubview:theScrollView];
 
 	CGRect toolbarRect = viewRect;
@@ -395,8 +412,10 @@
 
 	CGRect pagebarRect = viewRect;
 	pagebarRect.size.height = PAGEBAR_HEIGHT;
-	pagebarRect.origin.y = (viewRect.size.height - PAGEBAR_HEIGHT);
-
+    
+	//pagebarRect.origin.y = (viewRect.size.height - PAGEBAR_HEIGHT);
+    pagebarRect.origin.y = (viewRect.size.height);
+    
 	mainPagebar = [[ReaderMainPagebar alloc] initWithFrame:pagebarRect document:document]; // At bottom
 
 	mainPagebar.delegate = self;
@@ -627,6 +646,34 @@
 
 #pragma mark UIGestureRecognizer action methods
 
+- (void)fullScreen
+{
+#ifdef DEBUGX
+	NSLog(@"%s", __FUNCTION__);
+#endif
+
+    CGRect fullRect = self.view.bounds;
+    //[theScrollView initWithFrame:fullRect];
+    theScrollView.frame = fullRect;
+}
+
+- (void)notFullScreen
+{
+#ifdef DEBUGX
+	NSLog(@"%s", __FUNCTION__);
+#endif
+    
+#if (READER_SLIDER == TRUE)
+    float PAGEBAR_HEIGHT = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) ? PAGEBAR_HEIGHT_PHONE : PAGEBAR_HEIGHT_PAD;
+#endif
+
+    CGRect notFullRect = self.view.bounds;
+    notFullRect.size.height -= PAGEBAR_HEIGHT + TOOLBAR_HEIGHT;
+    notFullRect.origin.y = TOOLBAR_HEIGHT;
+    //[theScrollView initWithFrame:notFullRect];
+    theScrollView.frame = notFullRect;
+}
+
 - (void)decrementPageNumber
 {
 #ifdef DEBUGX
@@ -742,6 +789,8 @@
 				{
 					if ((mainToolbar.hidden == YES) || (mainPagebar.hidden == YES))
 					{
+                        [self notFullScreen];
+                        
 						[mainToolbar showToolbar]; [mainPagebar showPagebar]; // Show
 					}
 				}
@@ -847,6 +896,8 @@
 			if (CGRectContainsPoint(areaRect, point) == false) return;
 		}
 
+        [self fullScreen];
+        
 		[mainToolbar hideToolbar]; [mainPagebar hidePagebar]; // Hide
 
 		[lastHideTime release]; lastHideTime = [NSDate new];

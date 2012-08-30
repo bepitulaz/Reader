@@ -34,7 +34,7 @@
 
 #pragma mark Constants
 
-#define ZOOM_LEVELS 4
+#define ZOOM_LEVELS 10
 
 #if (READER_SHOW_SHADOWS == TRUE) // Option
 	#define CONTENT_INSET 4.0f
